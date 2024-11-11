@@ -21,7 +21,7 @@ export async function generateTitleFromUserMessage({
                                                      message,
                                                    }: {
   message: CoreUserMessage;
-}): Promise<string | null> {
+}): Promise<string> {
   await sleep(500);
 
   try {
@@ -38,6 +38,8 @@ export async function generateTitleFromUserMessage({
     return title;
   } catch (error) {
     console.error('Error generating title:', error);
-    return null;
+
+    // Возвращаем альтернативный заголовок по умолчанию
+    return 'New Chat';
   }
 }
