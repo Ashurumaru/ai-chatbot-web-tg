@@ -21,18 +21,23 @@ export async function generateTitleFromUserMessage({
                                                      message,
                                                    }: {
   message: CoreUserMessage;
-}) {
+}): Promise<string | null> {
   await sleep(500);
 
-  const { text: title } = await generateText({
-    model: customModel('gpt-3.5-turbo'),
-    system: `
-    - you will generate a short title based on the first message a user begins a conversation with
-    - ensure it is not more than 80 characters long
-    - the title should be a summary of the user's message
-    - do not use quotes or colons`,
-    prompt: JSON.stringify(message),
-  });
+  try {
+    const { text: title } = await generateText({
+      model: customModel('gpt-3.5-turbo'),
+      system: `
+      - you will generate a short title based on the first message a user begins a conversation with
+      - ensure it is not more than 80 characters long
+      - the title should be a summary of the user's message
+      - do not use quotes or colons`,
+      prompt: JSON.stringify(message),
+    });
 
-  return title;
+    return title;
+  } catch (error) {
+    console.error('Error generating title:', error);
+    return null;
+  }
 }

@@ -1,5 +1,3 @@
-// Define your models here.
-
 export interface Model {
   id: string;
   label: string;
@@ -9,8 +7,20 @@ export interface Model {
 
 export const models: Array<Model> = [
   {
+    id: 'gpt-3.5-turbo',
+    label: 'GPT-3.5 Turbo',
+    apiIdentifier: 'gpt-3.5-turbo',
+    description: 'Optimized for conversational tasks with high efficiency and accuracy',
+  },
+  {
+    id: 'gpt-4',
+    label: 'GPT-4',
+    apiIdentifier: 'gpt-4',
+    description: 'For advanced, high-complexity tasks and detailed responses',
+  },
+  {
     id: 'gpt-4o-mini',
-    label: 'GPT 4o mini',
+    label: 'GPT 4o Mini',
     apiIdentifier: 'gpt-4o-mini',
     description: 'Small model for fast, lightweight tasks',
   },
@@ -22,4 +32,4 @@ export const models: Array<Model> = [
   },
 ] as const;
 
-export const DEFAULT_MODEL_NAME: string = 'gpt-4o-mini';
+export const DEFAULT_MODEL_NAME: string = 'gpt-3.5-turbo';
