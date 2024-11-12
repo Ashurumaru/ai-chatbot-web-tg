@@ -1,11 +1,11 @@
-'use server';
-
-import { CoreMessage, CoreUserMessage, generateText } from 'ai';
 import { cookies } from 'next/headers';
+import OpenAI from 'openai';
 
-import { customModel } from '@/ai';
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-// Функция задержки, принимает время в миллисекундах
+// Функция задержки
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -16,30 +16,24 @@ export async function saveModelId(model: string) {
   cookieStore.set('model-id', model);
 }
 
-// Генерация заголовка на основе первого сообщения пользователя с задержкой перед запросом к API
-export async function generateTitleFromUserMessage({
-                                                     message,
-                                                   }: {
-  message: CoreUserMessage;
-}): Promise<string> {
+// Генерация заголовка на основе первого сообщения пользователя
+export async function generateTitleFromUserMessage(message: string): Promise<string> {
   await sleep(500);
 
   try {
-    const { text: title } = await generateText({
-      model: customModel('gpt-3.5-turbo'),
-      system: `
-      - you will generate a short title based on the first message a user begins a conversation with
-      - ensure it is not more than 80 characters long
-      - the title should be a summary of the user's message
-      - do not use quotes or colons`,
-      prompt: JSON.stringify(message),
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'Generate a short title for the first message in a chat.' },
+        { role: 'user', content: message },
+      ],
+      max_tokens: 50,
     });
 
-    return title;
+    const title = response.choices[0]?.message?.content?.trim();
+    return title || 'New Chat';
   } catch (error) {
     console.error('Error generating title:', error);
-
-    // Возвращаем альтернативный заголовок по умолчанию
     return 'New Chat';
   }
 }
