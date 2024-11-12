@@ -1,4 +1,4 @@
-import { CoreMessage } from 'ai';
+import OpenAI from 'openai';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
@@ -8,40 +8,38 @@ import { Chat as PreviewChat } from '@/components/custom/chat';
 import { getChatById, getMessagesByChatId } from '@/db/queries';
 import { convertToUIMessages } from '@/lib/utils';
 
-export default async function Page(props: { params: Promise<any> }) {
-  const params = await props.params;
-  const { id } = params;
-  const chat = await getChatById({ id });
+// Инициализация OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
+export default async function Page(props: { params: { id: string } }) {
+  const { id } = props.params;
+  console.log('Chat ID:', id);
+
+  const chat = await getChatById({ id });
   if (!chat) {
-    notFound();
+    return notFound();
   }
 
   const session = await auth();
-
-  if (!session || !session.user) {
+  if (!session || !session.user || session.user.id !== chat.userId) {
     return notFound();
   }
 
-  if (session.user.id !== chat.userId) {
-    return notFound();
-  }
+  const messagesFromDb = await getMessagesByChatId({ id });
+  console.log('Messages from DB:', messagesFromDb);
 
-  const messagesFromDb = await getMessagesByChatId({
-    id,
-  });
-
+  // Используем await для получения cookies
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get('model-id')?.value;
-  const selectedModelId =
-    models.find((model) => model.id === modelIdFromCookie)?.id ||
-    DEFAULT_MODEL_NAME;
+  const selectedModelId = models.find((model) => model.id === modelIdFromCookie)?.id || DEFAULT_MODEL_NAME;
 
   return (
-    <PreviewChat
-      id={chat.id}
-      initialMessages={convertToUIMessages(messagesFromDb)}
-      selectedModelId={selectedModelId}
-    />
+      <PreviewChat
+          id={chat.id}
+          initialMessages={convertToUIMessages(messagesFromDb)}
+          selectedModelId={selectedModelId}
+      />
   );
 }
