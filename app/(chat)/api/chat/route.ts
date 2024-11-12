@@ -50,6 +50,11 @@ export async function POST(request: Request) {
       max_tokens: 500,
     });
 
+    if (!response || !response.choices || !response.choices[0]?.message) {
+      console.error('Invalid response from OpenAI:', response);
+      return new Response('Failed to process request: Invalid OpenAI response', { status: 500 });
+    }
+
     const assistantMessage = response.choices[0].message;
 
     await saveMessages({
