@@ -1,4 +1,5 @@
-// app/api/generateTitle/route.ts
+// app/api/chat/generateTitle/route.ts
+
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
