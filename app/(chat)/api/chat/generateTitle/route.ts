@@ -22,7 +22,14 @@ export async function POST(request: Request) {
 
         const title = response.choices[0]?.message?.content?.trim() || 'New Chat';
         return NextResponse.json({ title });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'insufficient_quota' || error.status === 429) {
+            console.error('Quota exceeded for OpenAI API:', error);
+            return NextResponse.json(
+                { title: 'New Chat', error: 'Quota exceeded. Please check billing.' },
+                { status: 429 }
+            );
+        }
         console.error('Error generating title:', error);
         return NextResponse.json({ title: 'New Chat' }, { status: 500 });
     }
