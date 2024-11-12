@@ -1,6 +1,6 @@
-import OpenAI from 'openai';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
+import OpenAI from 'openai';
 
 import { DEFAULT_MODEL_NAME, models } from '@/ai/models';
 import { auth } from '@/app/(auth)/auth';
@@ -13,8 +13,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export default async function Page(props: { params: { id: string } }) {
-  const { id } = props.params;
+type PageProps = {
+  params: { id: string };
+};
+
+export default async function Page({ params }: PageProps) {
+  const { id } = params;
   console.log('Chat ID:', id);
 
   const chat = await getChatById({ id });
